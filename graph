@@ -1,0 +1,646 @@
+#include <SFML/Graphics.hpp>
+#include <iostream>
+#include <string>
+using namespace std;
+int side = 30;
+int coordinateX = 20;
+int coordinateY = 20;
+void draw_cell(int side, int coordinateX, int coordinateY, int pixelCount, sf::RenderWindow &window) {
+    sf::RectangleShape pixel(sf::Vector2f(1.f, 1.f));
+    pixel.setFillColor(sf::Color(0, 0, 0));
+    pixel.setPosition(sf::Vector2f(coordinateX, coordinateY));
+    while (pixelCount != 4*side) {
+        window.draw(pixel);
+        if (pixelCount < side) {
+            pixel.move(0, 1);
+        }
+        else if (pixelCount >= side and pixelCount < 2*side) {
+            pixel.move(1, 0);
+        }
+        else if (pixelCount >= 2*side and pixelCount < 3*side) {
+            pixel.move(0, -1);
+        }
+        else if (pixelCount >= 3*side and pixelCount < 4*side) {
+            pixel.move(-1, 0);
+        }
+        pixelCount+=1;
+    }
+}
+void draw_matrix(int side, int coordinateX, int coordinateY, int pixelCount, sf::RenderWindow &window) {
+    int counter = 0;
+    int y = 0;
+    int x = 0;
+        while (counter != 400) {
+            if(counter % 20 != 0 or counter == 0) {
+                draw_cell(side, coordinateX + x, coordinateY + y, pixelCount, window);
+                y+=side;
+            }
+            else {
+                x+=side;
+                y = 0;
+                draw_cell(side, coordinateX + x, coordinateY, pixelCount, window);
+                y = side;
+            }
+            counter+=1;
+        }
+}
+void draw_cellM(int side, int coordinateX, int coordinateY, int pixelCount, sf::RenderWindow &window, int counter) {
+    sf::RectangleShape squad(sf::Vector2f(side, side));
+    squad.setFillColor(sf::Color(255, 255, 255));
+    squad.setPosition(sf::Vector2f(coordinateX+1, coordinateY+1));
+    if (counter != -1) {
+        squad.setFillColor(sf::Color(121, 160, 193));
+    }
+    window.draw(squad);
+}
+void draw_matrixM(int side, int coordinateX, int coordinateY, int pixelCount, sf::RenderWindow &window, int number_csquad) {
+    int counter = 0;
+    int y = 0;
+    int x = 0;
+        while (counter != 400) {
+            if(counter % 20 != 0 or counter == 0) {
+                if (counter == number_csquad - 1) {
+                    draw_cellM(side, coordinateX + x, coordinateY + y, pixelCount, window, counter);
+                }
+                else {
+                    draw_cellM(side, coordinateX + x, coordinateY + y, pixelCount, window, -1);
+                }
+                y+=side;
+            }
+            else {
+                x+=side;
+                y = 0;
+                if (counter == number_csquad - 1) {
+                    draw_cellM(side, coordinateX + x, coordinateY, pixelCount, window, counter);
+                }
+                else {
+                    draw_cellM(side, coordinateX + x, coordinateY, pixelCount, window, -1);
+                }
+                y = side;
+            }
+            counter+=1;
+        }
+}
+void draw_rectangle(int side, int coordinateRectangleX, int coordinateRectangleY, sf::RenderWindow &window) {
+    sf::RectangleShape pixel(sf::Vector2f(3.f, 3.f));
+    pixel.setFillColor(sf::Color(255, 0, 0));
+    pixel.setPosition(sf::Vector2f(coordinateRectangleX, coordinateRectangleY));
+    sf::Vector2f coordinate = pixel.getPosition();
+    while (coordinate.y  != (coordinateRectangleY + 4*side)) {
+        window.draw(pixel);
+        pixel.move(0, 1);
+        coordinate = pixel.getPosition();
+    }
+    while (coordinate.x != (coordinateRectangleX + 8*side)) {
+        window.draw(pixel);
+        pixel.move(1, 0);
+        coordinate = pixel.getPosition();
+    }
+    while (coordinate.y != coordinateRectangleY) {
+        window.draw(pixel);
+        pixel.move(0, -1);
+        coordinate = pixel.getPosition();
+    }
+    while (coordinate.x != coordinateRectangleX) {
+        window.draw(pixel);
+        pixel.move(-1, 0);
+        coordinate = pixel.getPosition();
+    }
+}
+void draw_figures(int side, int coordinateX, int coordinateY, sf::RenderWindow &window) {
+    int coordinateCentreX = coordinateX + 10*side;
+    int coordinateCentreY = coordinateY + 10*side;
+    sf::RectangleShape pixel(sf::Vector2f(2.f, 2.f));
+    pixel.setFillColor(sf::Color(255, 0, 0));
+    pixel.setPosition(sf::Vector2f(coordinateX, coordinateY));
+    sf::Vector2f coordinate = sf::Vector2f(coordinateX, coordinateY);
+    while (coordinate.x != coordinateX + 20*side) {
+        while (coordinate.y != coordinateY + 20*side) {
+            pixel.setPosition(coordinate);
+            if (6*abs(coordinate.x - coordinateCentreX + 5*side) + 8*abs(coordinateCentreY - coordinate.y - 3*side) >= 24*side - side/5
+                and 6*abs(coordinate.x - coordinateCentreX + 5*side) + 8*abs(coordinateCentreY - coordinate.y - 3*side) <= 24*side + side/5) {
+                window.draw(pixel);
+            }
+            else if (((coordinate.x - coordinateCentreX)*side >=
+            (coordinateCentreY - coordinate.y)*(coordinateCentreY - coordinate.y)/12 -
+            (coordinateCentreY - coordinate.y)*side/3 + (4*side*side/3) - (side)/2) and
+            ((coordinate.x - coordinateCentreX)*side <=
+            (coordinateCentreY - coordinate.y)*(coordinateCentreY - coordinate.y)/12 -
+            (coordinateCentreY - coordinate.y)*side/3 + (4*side*side/3) + (side)/2)) {
+                window.draw(pixel);
+            }
+            else if (((coordinate.x - coordinateCentreX - 1*side)*(coordinate.x - coordinateCentreX - 1*side) +
+                 (coordinateCentreY - coordinate.y -4*side)*(coordinateCentreY - coordinate.y - 4*side) >= 25*side*side - 5*side)
+                 and ((coordinate.x - coordinateCentreX - 1*side)*(coordinate.x - coordinateCentreX - 1*side)
+                       + (coordinateCentreY - coordinate.y - 4*side)*(coordinateCentreY - coordinate.y - 4*side) <= 25*side*side + 5*side)) {
+                window.draw(pixel);
+            }
+            else if (((coordinate.x - coordinateCentreX + 5*side)*(coordinate.x - coordinateCentreX + 5*side)/(9) +
+            (coordinateCentreY - coordinate.y + 3*side)*(coordinateCentreY - coordinate.y + 3*side)/(16) >= 1*side*side-side/3)
+            and ((coordinate.x - coordinateCentreX + 5*side)*(coordinate.x - coordinateCentreX + 5*side)/(9) +
+            (coordinateCentreY - coordinate.y + 3*side)*(coordinateCentreY - coordinate.y + 3*side)/(16) <= 1*side*side+side/3)) {
+                window.draw(pixel);
+            }
+            coordinate.y+=1;
+        }
+        coordinate.y = coordinateY;
+        coordinate.x+=1;
+    }
+}
+void draw_coordinate_axis(int side, int coordinateX, int coordinateY, sf::RenderWindow &window) {
+    int coordinateCentreX = coordinateX + 10*side;
+    int coordinateCentreY = coordinateY + 10*side;
+    sf::RectangleShape pixel1(sf::Vector2f(3.f, 3.f));
+    pixel1.setFillColor(sf::Color(0, 0, 0));
+    pixel1.setPosition(sf::Vector2f(coordinateCentreX, coordinateY));
+    sf::RectangleShape pixel2(sf::Vector2f(3.f, 3.f));
+    pixel2.setFillColor(sf::Color(0, 0, 0));
+    pixel2.setPosition(sf::Vector2f(coordinateX, coordinateCentreY));
+    sf::Vector2f coordinate = sf::Vector2f(coordinateCentreX, coordinateY);
+    while (coordinate.y != coordinateY + 20*side - 1) {
+        window.draw(pixel1);
+        pixel1.move(0, 1);
+        coordinate = pixel1.getPosition();
+    }
+    coordinate = sf::Vector2f(coordinateCentreX , coordinateY);
+    while (coordinate.x != coordinateX + 20*side - 1) {
+        window.draw(pixel2);
+        pixel2.move(1, 0);
+        coordinate = pixel2.getPosition();
+    }
+}
+bool bool_func(double coordinatex, double coordinatey) {
+    int coordinateRectangleX = coordinateX + side - 1;
+    int coordinateRectangleY = coordinateY + side - 1;
+    int coordinateCentreX = coordinateX + 10*side;
+    int coordinateCentreY = coordinateY + 10*side;
+    if ((coordinatex < coordinateRectangleX or coordinatex > coordinateRectangleX+8*side)
+    or ((coordinatex > coordinateRectangleX or coordinatex < coordinateRectangleX+8*side) and
+    (coordinatey > coordinateRectangleY + 4*side or coordinatey < coordinateRectangleY))) {
+        if ((coordinatex - coordinateCentreX + 5*side)*(coordinatex - coordinateCentreX + 5*side)/9 +
+        (coordinateCentreY - coordinatey + 3*side)*(coordinateCentreY - coordinatey + 3*side)/16 >= 1*side*side) {
+            if ((coordinatex - coordinateCentreX - 1*side)*(coordinatex - coordinateCentreX - 1*side) +
+            (coordinateCentreY - coordinatey -4*side)*(coordinateCentreY - coordinatey - 4*side) >= 25*side*side) {
+                if ((coordinatex - coordinateCentreX)*side <=
+                (coordinateCentreY - coordinatey)*(coordinateCentreY - coordinatey)/12
+                - (coordinateCentreY - coordinatey)*side/3 + (4*side*side/3)) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            else if (((coordinatex - coordinateCentreX - 1*side)*(coordinatex - coordinateCentreX - 1*side) +
+            (coordinateCentreY - coordinatey - 4*side)*(coordinateCentreY - coordinatey - 4*side) <= 25*side*side)
+            and ((coordinatex - coordinateCentreX)*side >=
+            (coordinateCentreY - coordinatey)*(coordinateCentreY - coordinatey)/12
+            - (coordinateCentreY - coordinatey)*side/3 + (4*side*side/3))) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+    else {
+        return false;
+    }
+}
+void draw_color_parts(int side, int coordinateX, int coordinateY, sf::RenderWindow &window) {
+    sf::RectangleShape pixel(sf::Vector2f(1.f, 1.f));
+    pixel.setFillColor(sf::Color(121, 160, 193));
+    pixel.setPosition(sf::Vector2f(coordinateX, coordinateY));
+    sf::Vector2f coordinate = sf::Vector2f(coordinateX, coordinateY);
+    while (coordinate.x != coordinateX + 20*side) {
+        while (coordinate.y != coordinateY + 20*side) {
+            pixel.setPosition(coordinate);
+            if (bool_func(coordinate.x, coordinate.y)) {
+                window.draw(pixel);
+            }
+            coordinate.y +=1;
+        }
+        coordinate.y = coordinateY;
+        coordinate.x+=1;
+    }
+
+}
+void draw_inrhomus(int side, int coordinateX, int coordinateY, sf::RenderWindow &window) {
+    int coordinateCentreX = coordinateX + 10*side;
+    int coordinateCentreY = coordinateY + 10*side;
+    sf::RectangleShape pixel(sf::Vector2f(1.f, 1.f));
+    pixel.setFillColor(sf::Color(121, 160, 193));
+    pixel.setPosition(sf::Vector2f(coordinateX, coordinateY));
+    sf::Vector2f coordinate = sf::Vector2f(coordinateX, coordinateY);
+    while (coordinate.x != coordinateX + 20*side) {
+        while (coordinate.y != coordinateY + 20*side) {
+            pixel.setPosition(coordinate);
+            if (((coordinate.x - coordinateCentreX + 5*side)*(coordinate.x - coordinateCentreX + 5*side)/(9) +
+            (coordinateCentreY - coordinate.y + 3*side)*(coordinateCentreY - coordinate.y + 3*side)/(16) <= 1*side*side)
+            and (6*abs(coordinate.x - coordinateCentreX + 5*side) + 8*abs(coordinateCentreY - coordinate.y - 3*side) >= 24*side)) {
+                window.draw(pixel);
+            }
+            coordinate.y+=1;
+        }
+        coordinate.x+=1;
+        coordinate.y=0;
+    }
+}
+void draw_inellipse_inrhombus(int side, int coordinateX, int coordinateY, sf::RenderWindow &window) {
+    int coordinateCentreX = coordinateX + 10*side;
+    int coordinateCentreY = coordinateY + 10*side;
+    sf::RectangleShape pixel(sf::Vector2f(1.f, 1.f));
+    pixel.setFillColor(sf::Color(121, 160, 193));
+    pixel.setPosition(sf::Vector2f(coordinateX, coordinateY));
+    sf::Vector2f coordinate = sf::Vector2f(coordinateX, coordinateY);
+    while (coordinate.x != coordinateX + 20*side) {
+        while (coordinate.y != coordinateY + 20*side) {
+            pixel.setPosition(coordinate);
+            if (((coordinate.x - coordinateCentreX + 5*side)*(coordinate.x - coordinateCentreX + 5*side)/(9) +
+            (coordinateCentreY - coordinate.y + 3*side)*(coordinateCentreY - coordinate.y + 3*side)/(16) <= 1*side*side)
+            and (6*abs(coordinate.x - coordinateCentreX + 5*side) + 8*abs(coordinateCentreY - coordinate.y - 3*side) <= 24*side)) {
+                window.draw(pixel);
+            }
+            coordinate.y+=1;
+        }
+        coordinate.x+=1;
+        coordinate.y=0;
+    }
+}
+void draw_inrhombus(int side, int coordinateX, int coordinateY, int coordinateRectangleX, int coordinateRectangleY, sf::RenderWindow &window) {
+    int coordinateCentreX = coordinateX + 10*side;
+    int coordinateCentreY = coordinateY + 10*side;
+    sf::RectangleShape pixel(sf::Vector2f(1.f, 1.f));
+    pixel.setFillColor(sf::Color(121, 160, 193));
+    pixel.setPosition(sf::Vector2f(coordinateX, coordinateY));
+    sf::Vector2f coordinate = sf::Vector2f(coordinateX, coordinateY);
+    while (coordinate.x != coordinateX + 20*side) {
+        while (coordinate.y != coordinateY + 20*side) {
+            pixel.setPosition(coordinate);
+            if ((coordinate.y > (coordinateRectangleY + 4*side)) and
+            (6*abs(coordinate.x - coordinateCentreX + 5*side) + 8*abs(coordinateCentreY - coordinate.y - 3*side) < 24*side)
+            and ((coordinate.x - coordinateCentreX + 5*side)*(coordinate.x - coordinateCentreX + 5*side)/(9) +
+            (coordinateCentreY - coordinate.y + 3*side)*(coordinateCentreY - coordinate.y + 3*side)/(16) > 1*side*side)
+            and ((coordinate.x - coordinateCentreX - 1*side)*(coordinate.x - coordinateCentreX - 1*side) +
+                        (coordinateCentreY - coordinate.y -4*side)*(coordinateCentreY - coordinate.y - 4*side) > 25*side*side)) {
+                window.draw(pixel);
+            }
+            coordinate.y+=1;
+        }
+        coordinate.x+=1;
+        coordinate.y=0;
+    }
+}
+void draw_inrhombus_incircle(int side, int coordinateX, int coordinateY, int coordinateRectangleX, int coordinateRectangleY, sf::RenderWindow &window) {
+    int coordinateCentreX = coordinateX + 10*side;
+    int coordinateCentreY = coordinateY + 10*side;
+    sf::RectangleShape pixel(sf::Vector2f(1.f, 1.f));
+    pixel.setFillColor(sf::Color(121, 160, 193));
+    pixel.setPosition(sf::Vector2f(coordinateX, coordinateY));
+    sf::Vector2f coordinate = sf::Vector2f(coordinateX, coordinateY);
+    while (coordinate.x != coordinateX + 20*side) {
+        while (coordinate.y != coordinateY + 20*side) {
+            pixel.setPosition(coordinate);
+            if ((coordinate.y > (coordinateRectangleY + 4*side)) and
+            (6*abs(coordinate.x - coordinateCentreX + 5*side) + 8*abs(coordinateCentreY - coordinate.y - 3*side) < 24*side)
+            and ((coordinate.x - coordinateCentreX + 5*side)*(coordinate.x - coordinateCentreX + 5*side)/(9) +
+            (coordinateCentreY - coordinate.y + 3*side)*(coordinateCentreY - coordinate.y + 3*side)/(16) > 1*side*side)
+            and ((coordinate.x - coordinateCentreX - 1*side)*(coordinate.x - coordinateCentreX - 1*side) +
+                        (coordinateCentreY - coordinate.y -4*side)*(coordinateCentreY - coordinate.y - 4*side) < 25*side*side)) {
+                window.draw(pixel);
+            }
+            coordinate.y+=1;
+        }
+        coordinate.x+=1;
+        coordinate.y=0;
+    }
+}
+void draw_inrhombus_inrectangle(int side, int coordinateX, int coordinateY, int coordinateRectangleX, int coordinateRectangleY, sf::RenderWindow &window) {
+    int coordinateCentreX = coordinateX + 10*side;
+    int coordinateCentreY = coordinateY + 10*side;
+    sf::RectangleShape pixel(sf::Vector2f(1.f, 1.f));
+    pixel.setFillColor(sf::Color(121, 160, 193));
+    pixel.setPosition(sf::Vector2f(coordinateX, coordinateY));
+    sf::Vector2f coordinate = sf::Vector2f(coordinateX, coordinateY);
+    while (coordinate.x != coordinateX + 20*side) {
+        while (coordinate.y != coordinateY + 20*side) {
+            pixel.setPosition(coordinate);
+            if ((coordinate.y < (coordinateRectangleY + 4*side)) and
+            (6*abs(coordinate.x - coordinateCentreX + 5*side) + 8*abs(coordinateCentreY - coordinate.y - 3*side) < 24*side)
+            and ((coordinate.x - coordinateCentreX + 5*side)*(coordinate.x - coordinateCentreX + 5*side)/(9) +
+            (coordinateCentreY - coordinate.y + 3*side)*(coordinateCentreY - coordinate.y + 3*side)/(16) > 1*side*side)
+            and ((coordinate.x - coordinateCentreX - 1*side)*(coordinate.x - coordinateCentreX - 1*side) +
+                        (coordinateCentreY - coordinate.y -4*side)*(coordinateCentreY - coordinate.y - 4*side) > 25*side*side)) {
+                window.draw(pixel);
+            }
+            coordinate.y+=1;
+        }
+        coordinate.x+=1;
+        coordinate.y=0;
+    }
+}
+void draw_inrhombus_inrectangle_incircle(int side, int coordinateX, int coordinateY,
+int coordinateRectangleX, int coordinateRectangleY, sf::RenderWindow &window) {
+    int coordinateCentreX = coordinateX + 10*side;
+    int coordinateCentreY = coordinateY + 10*side;
+    sf::RectangleShape pixel(sf::Vector2f(1.f, 1.f));
+    pixel.setFillColor(sf::Color(121, 160, 193));
+    pixel.setPosition(sf::Vector2f(coordinateX, coordinateY));
+    sf::Vector2f coordinate = sf::Vector2f(coordinateX, coordinateY);
+    while (coordinate.x != coordinateX + 20*side) {
+        while (coordinate.y != coordinateY + 20*side) {
+            pixel.setPosition(coordinate);
+            if ((coordinate.y < (coordinateRectangleY + 4*side)) and
+            (6*abs(coordinate.x - coordinateCentreX + 5*side) + 8*abs(coordinateCentreY - coordinate.y - 3*side) < 24*side)
+            and ((coordinate.x - coordinateCentreX + 5*side)*(coordinate.x - coordinateCentreX + 5*side)/(9) +
+            (coordinateCentreY - coordinate.y + 3*side)*(coordinateCentreY - coordinate.y + 3*side)/(16) > 1*side*side)
+            and ((coordinate.x - coordinateCentreX - 1*side)*(coordinate.x - coordinateCentreX - 1*side) +
+                        (coordinateCentreY - coordinate.y -4*side)*(coordinateCentreY - coordinate.y - 4*side) < 25*side*side)) {
+                window.draw(pixel);
+            }
+            coordinate.y+=1;
+        }
+        coordinate.x+=1;
+        coordinate.y=0;
+    }
+}
+void draw_inrectangle(int side, int coordinateX, int coordinateY,
+int coordinateRectangleX, int coordinateRectangleY, sf::RenderWindow &window) {
+    int coordinateCentreX = coordinateX + 10*side;
+    int coordinateCentreY = coordinateY + 10*side;
+    sf::RectangleShape pixel(sf::Vector2f(1.f, 1.f));
+    pixel.setFillColor(sf::Color(121, 160, 193));
+    pixel.setPosition(sf::Vector2f(coordinateX, coordinateY));
+    sf::Vector2f coordinate = sf::Vector2f(coordinateX, coordinateY);
+    while (coordinate.x != coordinateX + 20*side) {
+        while (coordinate.y != coordinateY + 20*side) {
+            pixel.setPosition(coordinate);
+            if ((coordinate.y < (coordinateRectangleY + 4*side) and coordinate.y > coordinateRectangleY)
+            and (coordinate.x < (coordinateRectangleX + 8*side) and coordinate.x > coordinateRectangleX)
+            and (6*abs(coordinate.x - coordinateCentreX + 5*side) + 8*abs(coordinateCentreY - coordinate.y - 3*side) > 24*side)
+            and ((coordinate.x - coordinateCentreX - 1*side)*(coordinate.x - coordinateCentreX - 1*side) +
+                        (coordinateCentreY - coordinate.y -4*side)*(coordinateCentreY - coordinate.y - 4*side) > 25*side*side)) {
+                window.draw(pixel);
+            }
+            coordinate.y+=1;
+        }
+        coordinate.x+=1;
+        coordinate.y=0;
+    }
+}
+void draw_inrectangle_incircle(int side, int coordinateX, int coordinateY,
+int coordinateRectangleX, int coordinateRectangleY, sf::RenderWindow &window) {
+    int coordinateCentreX = coordinateX + 10*side;
+    int coordinateCentreY = coordinateY + 10*side;
+    sf::RectangleShape pixel(sf::Vector2f(1.f, 1.f));
+    pixel.setFillColor(sf::Color(121, 160, 193));
+    pixel.setPosition(sf::Vector2f(coordinateX, coordinateY));
+    sf::Vector2f coordinate = sf::Vector2f(coordinateX, coordinateY);
+    while (coordinate.x != coordinateX + 20*side) {
+        while (coordinate.y != coordinateY + 20*side) {
+            pixel.setPosition(coordinate);
+            if ((coordinate.y < (coordinateRectangleY + 4*side) and coordinate.y > coordinateRectangleY)
+            and (coordinate.x < (coordinateRectangleX + 8*side) and coordinate.x > coordinateRectangleX)
+            and (6*abs(coordinate.x - coordinateCentreX + 5*side) + 8*abs(coordinateCentreY - coordinate.y - 3*side) > 24*side)
+            and ((coordinate.x - coordinateCentreX - 1*side)*(coordinate.x - coordinateCentreX - 1*side) +
+                        (coordinateCentreY - coordinate.y -4*side)*(coordinateCentreY - coordinate.y - 4*side) < 25*side*side)) {
+                window.draw(pixel);
+            }
+            coordinate.y+=1;
+        }
+        coordinate.x+=1;
+        coordinate.y=0;
+    }
+}
+void draw_incircle(int side, int coordinateX, int coordinateY,
+int coordinateRectangleX, int coordinateRectangleY, sf::RenderWindow &window) {
+    int coordinateCentreX = coordinateX + 10*side;
+    int coordinateCentreY = coordinateY + 10*side;
+    sf::RectangleShape pixel(sf::Vector2f(1.f, 1.f));
+    pixel.setFillColor(sf::Color(121, 160, 193));
+    pixel.setPosition(sf::Vector2f(coordinateX, coordinateY));
+    sf::Vector2f coordinate = sf::Vector2f(coordinateX, coordinateY);
+    while (coordinate.x != coordinateX + 20*side) {
+        while (coordinate.y != coordinateY + 20*side) {
+            pixel.setPosition(coordinate);
+            if (((coordinate.y >= (coordinateRectangleY+4*side) and coordinate.x <= (coordinateRectangleX+8*side))
+            or (coordinate.y <= (coordinateRectangleY+4*side) and (coordinate.x >= (coordinateRectangleX+8*side)))
+            or (coordinate.y >= (coordinateRectangleY+4*side) and coordinate.x >= (coordinateRectangleX+8*side))) and
+            (6*abs(coordinate.x - coordinateCentreX + 5*side) + 8*abs(coordinateCentreY - coordinate.y - 3*side) > 24*side)
+            and ((coordinate.x - coordinateCentreX - 1*side)*(coordinate.x - coordinateCentreX - 1*side) +
+            (coordinateCentreY - coordinate.y -4*side)*(coordinateCentreY - coordinate.y - 4*side) < 25*side*side)
+            and ((coordinate.x - coordinateCentreX)*side <=
+                        (coordinateCentreY - coordinate.y)*(coordinateCentreY - coordinate.y)/12
+                                    - (coordinateCentreY - coordinate.y)*side/3 + (4*side*side/3))) {
+                window.draw(pixel);
+            }
+            coordinate.y+=1;
+        }
+        coordinate.x+=1;
+        coordinate.y=0;
+    }
+}
+void draw_incircle_inparabola(int side, int coordinateX, int coordinateY, sf::RenderWindow &window) {
+    int coordinateCentreX = coordinateX + 10*side;
+    int coordinateCentreY = coordinateY + 10*side;
+    sf::RectangleShape pixel(sf::Vector2f(1.f, 1.f));
+    pixel.setFillColor(sf::Color(121, 160, 193));
+    pixel.setPosition(sf::Vector2f(coordinateX, coordinateY));
+    sf::Vector2f coordinate = sf::Vector2f(coordinateX, coordinateY);
+    while (coordinate.x != coordinateX + 20*side) {
+        while (coordinate.y != coordinateY + 20*side) {
+            pixel.setPosition(coordinate);
+            if (((coordinate.x - coordinateCentreX - 1*side)*(coordinate.x - coordinateCentreX - 1*side) +
+            (coordinateCentreY - coordinate.y -4*side)*(coordinateCentreY - coordinate.y - 4*side) < 25*side*side)
+            and ((coordinate.x - coordinateCentreX)*side >=
+                        (coordinateCentreY - coordinate.y)*(coordinateCentreY - coordinate.y)/12
+                                    - (coordinateCentreY - coordinate.y)*side/3 + (4*side*side/3))) {
+                window.draw(pixel);
+            }
+            coordinate.y+=1;
+        }
+        coordinate.x+=1;
+        coordinate.y=0;
+    }
+}
+void draw_inparabola(int side, int coordinateX, int coordinateY, sf::RenderWindow &window) {
+    int coordinateCentreX = coordinateX + 10*side;
+    int coordinateCentreY = coordinateY + 10*side;
+    sf::RectangleShape pixel(sf::Vector2f(1.f, 1.f));
+    pixel.setFillColor(sf::Color(121, 160, 193));
+    pixel.setPosition(sf::Vector2f(coordinateX, coordinateY));
+    sf::Vector2f coordinate = sf::Vector2f(coordinateX, coordinateY);
+    while (coordinate.x != coordinateX + 20*side) {
+        while (coordinate.y != coordinateY + 20*side) {
+            pixel.setPosition(coordinate);
+            if (((coordinate.x - coordinateCentreX - 1*side)*(coordinate.x - coordinateCentreX - 1*side) +
+            (coordinateCentreY - coordinate.y -4*side)*(coordinateCentreY - coordinate.y - 4*side) > 25*side*side)
+            and ((coordinate.x - coordinateCentreX)*side >=
+                        (coordinateCentreY - coordinate.y)*(coordinateCentreY - coordinate.y)/12
+                                    - (coordinateCentreY - coordinate.y)*side/3 + (4*side*side/3))) {
+                window.draw(pixel);
+            }
+            coordinate.y+=1;
+        }
+        coordinate.x+=1;
+        coordinate.y=0;
+    }
+}
+/*
+void draw_input_string(sf::RenderWinldow &window) {
+    sf::RectangleShape shape(sf::Vector2f(100.f, 40.f));
+    shape.setPosition(1380, 10);
+    shape.setFillColor(sf::Color(255, 255, 255));
+    shape.setOutlineThickness(2.f);
+    shape.setOutlineColor(sf::Color(0, 0, 0));
+    window.draw(shape);
+}
+*/
+int main()
+{
+    int pixelCount = 0;
+    /*
+    bool mouse_leftpressed = false;
+    bool very_important_bool_item = false;
+    */
+    /*
+    double n = 1;
+    string str_n = "";
+    sf::Font font;
+    font.loadFromFile("times-new-roman.ttf");
+    sf::Text num("", font, 24);
+    num.setPosition(1385, 10);
+    num.setFillColor(sf::Color(0, 0, 0));
+    */
+    sf::Event event;
+    sf::RenderWindow window(sf::VideoMode(1490, 800), "graph");
+    //sf::View view(sf::FloatRect(0, 0, 1490, 800));
+    window.clear(sf::Color::White);
+    draw_matrixM(side, coordinateX, coordinateY, pixelCount, window, -1);
+    draw_color_parts(side, coordinateX, coordinateY, window);
+    draw_matrix(side, coordinateX, coordinateY, pixelCount, window);
+    int coordinateRectangleX = coordinateX + side - 1;
+    int coordinateRectangleY = coordinateY + side - 1;
+    draw_rectangle(side, coordinateRectangleX, coordinateRectangleY, window);
+    draw_figures(side, coordinateX, coordinateY, window);
+    //draw_circle(side, coordinateX, coordinateY, window);
+    //draw_parabola(side, coordinateX, coordinateY, window);
+    //draw_ellipse(side, coordinateX, coordinateY, window);
+    draw_coordinate_axis(side, coordinateX, coordinateY, window);
+    window.display();
+    while (window.isOpen()) {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed or sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+                window.close();
+            }
+            if (event.type == sf::Event::KeyReleased and event.key.code == sf::Keyboard::U) {
+                side+=5;
+                coordinateRectangleX = coordinateX + side - 1;
+                coordinateRectangleY = coordinateY + side - 1;
+                window.clear(sf::Color::White);
+                //window.setView(view);
+                draw_matrixM(side, coordinateX, coordinateY, pixelCount, window, -1);
+                draw_color_parts(side, coordinateX, coordinateY, window);
+                draw_matrix(side, coordinateX, coordinateY, pixelCount, window);
+                draw_rectangle(side, coordinateRectangleX, coordinateRectangleY, window);
+                draw_figures(side, coordinateX, coordinateY, window);
+                draw_coordinate_axis(side, coordinateX, coordinateY, window);
+                /*draw_circle(side, coordinateX, coordinateY, window);
+                draw_parabola(side, coordinateX, coordinateY, window);
+                draw_ellipse(side, coordinateX, coordinateY, window);*/
+                window.display();
+            }
+            if (event.type == sf::Event::KeyReleased and event.key.code == sf::Keyboard::N) {
+                side-=5;
+                coordinateRectangleX = coordinateX + side - 1;
+                coordinateRectangleY = coordinateY + side - 1;
+                window.clear(sf::Color::White);
+                //window.setView(view);
+                draw_matrixM(side, coordinateX, coordinateY, pixelCount, window, -1);
+                draw_color_parts(side, coordinateX, coordinateY, window);
+                draw_matrix(side, coordinateX, coordinateY, pixelCount, window);
+                draw_rectangle(side, coordinateRectangleX, coordinateRectangleY, window);
+                draw_figures(side, coordinateX, coordinateY, window);
+                draw_coordinate_axis(side, coordinateX, coordinateY, window);
+                /*draw_circle(side, coordinateX, coordinateY, window);
+                draw_parabola(side, coordinateX, coordinateY, window);
+                draw_ellipse(side, coordinateX, coordinateY, window);*/
+                window.display();
+            }
+            if (event.type == sf::Event::KeyReleased and event.key.code == sf::Keyboard::S) {
+                coordinateY+=10;
+                coordinateRectangleX = coordinateX + side - 1;
+                coordinateRectangleY = coordinateY + side - 1;
+                window.clear(sf::Color::White);
+                //window.setView(view);
+                draw_matrixM(side, coordinateX, coordinateY, pixelCount, window, -1);
+                draw_color_parts(side, coordinateX, coordinateY, window);
+                draw_matrix(side, coordinateX, coordinateY, pixelCount, window);
+                draw_rectangle(side, coordinateRectangleX, coordinateRectangleY, window);
+                draw_figures(side, coordinateX, coordinateY, window);
+                draw_coordinate_axis(side, coordinateX, coordinateY, window);
+                /*draw_circle(side, coordinateX, coordinateY, window);
+                draw_parabola(side, coordinateX, coordinateY, window);
+                draw_ellipse(side, coordinateX, coordinateY, window);*/
+                window.display();
+            }
+            if (event.type == sf::Event::KeyReleased and event.key.code == sf::Keyboard::W) {
+                coordinateY-=10;
+                coordinateRectangleX = coordinateX + side - 1;
+                coordinateRectangleY = coordinateY + side - 1;
+                window.clear(sf::Color::White);
+                //window.setView(view);
+                draw_matrixM(side, coordinateX, coordinateY, pixelCount, window, -1);
+                draw_color_parts(side, coordinateX, coordinateY, window);
+                draw_matrix(side, coordinateX, coordinateY, pixelCount, window);
+                draw_rectangle(side, coordinateRectangleX, coordinateRectangleY, window);
+                draw_figures(side, coordinateX, coordinateY, window);
+                draw_coordinate_axis(side, coordinateX, coordinateY, window);
+                /*draw_circle(side, coordinateX, coordinateY, window);
+                draw_parabola(side, coordinateX, coordinateY, window);
+                draw_ellipse(side, coordinateX, coordinateY, window);*/
+                window.display();
+            }
+            if (event.type == sf::Event::KeyReleased and event.key.code == sf::Keyboard::A) {
+                coordinateX-=10;
+                coordinateRectangleX = coordinateX + side - 1;
+                coordinateRectangleY = coordinateY + side - 1;
+                window.clear(sf::Color::White);
+                //window.setView(view);
+                draw_matrixM(side, coordinateX, coordinateY, pixelCount, window, -1);
+                draw_color_parts(side, coordinateX, coordinateY, window);
+                draw_matrix(side, coordinateX, coordinateY, pixelCount, window);
+                draw_rectangle(side, coordinateRectangleX, coordinateRectangleY, window);
+                draw_figures(side, coordinateX, coordinateY, window);
+                draw_coordinate_axis(side, coordinateX, coordinateY, window);
+                /*draw_circle(side, coordinateX, coordinateY, window);
+                draw_parabola(side, coordinateX, coordinateY, window);
+                draw_ellipse(side, coordinateX, coordinateY, window);*/
+                window.display();
+            }
+            if (event.type == sf::Event::KeyReleased and event.key.code == sf::Keyboard::D) {
+                coordinateX+=10;
+                coordinateRectangleX = coordinateX + side - 1;
+                coordinateRectangleY = coordinateY + side - 1;
+                window.clear(sf::Color::White);
+                //window.setView(view);
+                draw_matrixM(side, coordinateX, coordinateY, pixelCount, window, -1);
+                draw_color_parts(side, coordinateX, coordinateY, window);
+                draw_matrix(side, coordinateX, coordinateY, pixelCount, window);
+                draw_rectangle(side, coordinateRectangleX, coordinateRectangleY, window);
+                draw_figures(side, coordinateX, coordinateY, window);
+                draw_coordinate_axis(side, coordinateX, coordinateY, window);
+                /*draw_circle(side, coordinateX, coordinateY, window);
+                draw_parabola(side, coordinateX, coordinateY, window);
+                draw_ellipse(side, coordinateX, coordinateY, window);*/
+                window.display();
+            }
+
+        }
+
+
+    }
+}
